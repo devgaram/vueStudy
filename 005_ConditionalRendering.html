@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>004. 조건부 렌더링</title>
+</head>
+<body>
+<script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
+<div id="app">
+	<h1 v-if="type==='A'">A</h1>
+	<h1 v-else-if="type==='B'">B</h1>
+	<h1 v-else-if="type==='C'">C</h1>
+	<h1 v-else>NOT A/B/C</h1>
+	
+	<!--
+		v-show와 바인딩된 데이터가 false면 DOM은 생성되나,
+		style="display:none" 이 된다.
+		즉, 초기 조건에 관계없이 항상 DOM이 렌더링된다.
+		*<template>와 v-else 지원 안함.
+	-->
+	<h1 v-show="ok">안녕하세요</h1>
+</div>
+
+
+<script>
+var vm = new Vue({
+	el : '#app',
+	data : {
+		type : 'C',
+		ok : false
+	}
+});
+
+var vm_tem = new Vue({
+	template : '#app',
+	data : {
+		type : 'C',
+		ok : false
+	}
+});
+</script>
+</body>
+</html>

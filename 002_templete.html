@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>002. 템플릿 문법</title>
+</head>
+<body>
+<script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
+
+<div id="app">
+	1. v-once
+	<p>{{ text }}</p>	
+	<p v-once>{{ text }}</p>
+	<button @click="text='바뀜!'">텍스트 변경</button><br/>	
+	2. v-bind & v-html
+	<p v-bind:id="dynamicId">html 속성은 v-bind 디렉티브를 이용해야한다. Mustaches는 사용할 수 없다.</p>
+	<button v-bind:disabled="isButtonDisabled">Button</button>
+	<p>{{ rawHtml }}</p>
+	<p v-html="rawHtml"></p>	
+	3.Mustaches안에서 자바스크립트 표현식 사용할 수 있다.(구문.. 조건문 등 불가.)
+	<p>{{ number + 1 }}</p>
+	<p>{{ ok ? 'YES' : 'NO' }}</p>
+	<p>{{ message.split(',').reverse().join(',') }}</p>
+	<div v-bind:id="'list-' + dynamicId"></div>
+	window.~ 전역 함수 접근 가능.
+	<p>{{ new Date() }}</p>
+	<p>{{ Math.random(10) }}</p>
+	4. v-if
+	<p v-if="seen">볼 수 있어</p>
+	<p v-if="blind">볼 수 없어어</p>
+	<p>5. arguments</p>
+	<a v-bind:href="url">url : {{ url }}</a><br/>
+	<a :href="url">url : {{ url }}</a><br/>
+	<a v-on:click="fnChangeUrl">url : {{ url }}</a><br/>
+	<a @click="fnChangeUrl">url : {{ url }}</a><br/>
+	<a :href="url" @click="fnChangeUrl">url : {{ url }}</a>
+	<a :href="url" @click.prevent="fnChangeUrl">prevent url : {{ url }}</a>
+</div>
+<script>
+var vm = new Vue({
+	el : '#app',
+	data : {		
+		text : '안 바뀜',
+		rawHtml : '<span>나는 html이야.</span>',
+		dynamicId : 'bindedID',
+		isButtonDisabled : true,
+		number : 1,
+		ok : true,
+		message : 'a,b,c',
+		seen : true,
+		blind : false,
+		url : '001_Instance.html'
+	},
+	methods:{
+		fnChangeUrl : function(){
+			alert(this.url);
+		}
+	}
+});
+console.log(document.getElementById('bindedID'));
+</script>
+</body>
+</html>

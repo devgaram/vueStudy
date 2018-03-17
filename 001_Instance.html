@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>001. vue 인스턴스</title>
+</head>
+<body>
+<script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
+
+<!--html은 vue 정의하는 script 앞에 위치해야한다. 뒤에 위치하면 el객체 못 찾음.-->
+<div id="example">
+	<p>{{ a }}</p>	
+	<p>{{ c }}</p>	
+	<button @click="a = '5'">Change it</button>
+</div>
+<script>
+/*
+	data객체 --> vue's reactivity system
+	vue 인스턴스의 data 속성에 *정의된 값이 변경시, 화면이 재 렌더링된다.
+*/
+var data = {
+	a : 1,
+	c : '',	//나중에 쓸 변수일 경우, 정의만 해주기.
+	_p : '_로시작하네.'
+}
+
+var vm = new Vue({
+	data : data,
+	el : '#example'		
+});
+
+//vm.data.a 	undefined
+console.log(vm.$data === data); //true
+console.log(vm.$el === document.getElementById('example'));	//true
+console.log(vm.a === data.a);	//true
+console.log(vm.$data.a === data.a); //true
+console.log(vm._p === data._p);	//vm._p === undefined 
+console.log(vm.$data._p === data._p); //true
+
+//change the property on the instance.(affect)
+vm.a = 2;
+console.log(vm.a === data.a);	//true
+//change data object.(affect)
+data.a = 3;
+console.log(vm.a === data.a);	//true
+
+// add new property to instance (not affect)
+vm.b = 'hi';
+console.log(vm.b === data.b);	//false
+delete vm.b;
+data.b = 'hi';
+console.log(vm.b === data.b);	//false
+
+//a가 변할 때, 해당 콜백함수 실행.
+vm.$watch('a', function(newValue, oldValue){
+	console.group();
+	console.log('watch a');
+	console.log('newValue : ' + newValue);
+	console.log('oldValue : ' + oldValue);
+	console.log(this === vm);	//true
+	console.groupEnd();
+	this.c='change!';
+});
+
+</script>
+
+
+<div id="app">
+	<p>{{ foo }}</p>
+	<button @click="foo = 'baz'">Change it</button>
+</div>
+<script>
+/*
+	Object.freeze(obj) : vue의 리액티브 시스템이 obj의 변화를 감지 못하게 한다.
+*/
+var obj = {
+	foo : 'bar'
+}
+
+Object.freeze(obj);	//obj 변경시, 에러 발생. Cannot assign to read only property 'foo' of object '#<Object>'
+
+new Vue({
+	el : '#app',
+	data : obj
+});
+</script>
+
+
+<script>
+/*
+	컴포넌트에서 data 속성은 반드시 객체를 반환하는 함수로 선언해야 한다. 인스턴스들이 같은 데이터를 참조하는 것을 막기 위해.
+
+	**화살표 함수 안의 this는 vue 인스턴스가 아니라서 화살표 함수 쓰지않기.
+*/
+
+var Component = Vue.extend({
+	data : function(){	
+		return {a : this}
+	}
+});
+
+var Component_arrow = Vue.extend({
+	data : ()=>{	
+		return {a : this}
+	}
+});
+var myComponent = new Component();
+var myComponent_arrow = new Component_arrow();
+
+console.group('this in Component');
+console.log(myComponent.a === myComponent_arrow.a);	//false
+console.log(myComponent.a + "," + myComponent_arrow.a);	//vue instance , window
+console.groupEnd();
+</script>
+
+
+<div id="life">
+	<p>{{ a }}</p>
+	<button @click="a = '111'">Change it</button>	
+</div>
+<script>
+/*
+	instance lifecycle hooks
+	데이터 감지 -> 템플릿 컴파일 -> DOM에 인스턴스 객체 연결 -> 데이터 변화에 따라 DOM 반응.
+	* 옵션 콜백함수로 화살표 함수 쓰지 않기.
+*/
+console.group('life cycle');
+new Vue({
+	data : {a : 1},
+	el : '#life',
+	created : function(){
+		console.log('created a is : ' + this.a)
+	},
+	mounted : function(){
+		console.log('mounted');
+	},
+	updated : function(){
+		console.log('updated');
+		console.log(' a is changeed : ' + this.a);
+	},
+	destroyed : function(){
+		console.log('destroyed');
+	}
+});
+console.groupEnd();
+</script>
+</body>
+</html>

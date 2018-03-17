@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>004. 클래스와 스타일 바인딩</title>
+</head>
+<body>
+<script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
+<div id="app">
+	v-bind:class를 통해 클래스와 데이터 바인딩 하는 방법
+	<button @click="fnToggleActive">isActive 토글</button>
+	<button @click="fnToggleHasError">hasError 토글</button>
+	<div>isActive : {{isActive}} hasError : {{hasError}}</div>	
+	<div class="static" v-bind:class="{ active : isActive, 'text-danger' : hasError }">인라인 바인딩.	</div>
+	<div v-bind:class="classObject">객체를 바인딩해도 된다.</div>
+	<div v-bind:class="computeClassObject">computed 속성을 바인딩해도 된다.</div>
+	<div v-bind:class="[activeClass, errorClass]">배열을 통해 클래스 목록을 바인딩 할 수 있다.</div>
+	<div v-bind:class="[isActive ? activeClass : '', errorClass]">삼항 연산자를 이용할 수 있다.</div>
+	<div v-bind:class="[{active : isActive}, errorClass]">삼항 연산자는 복잡해질 수 있기 때문에 객체 구문 사용한다.</div>
+	v-bind:style 을 통해 스타일 바인딩하기.
+	<div v-bind:style="{color:activeColor, fontSize:fontSize+'px'}">camelCase와 따옴표를 함께 사용해야함.</div>
+	<div v-bind:style="styleObject">스타일 객체를 바인딩하여 템플릿 간결하게 하는 게 좋다.</div>
+	<div v-bind:style="[styleObject, overrideStyle]">배열객체를 통해 여러개의 스타일 객체 적용 가능</div>
+	<div v-bind:style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }">접두사 있는 여러 값 배열로 바인딩 가능(vue가 자동으로 해당 접두사 감지하여 스타일 적용함)</div>
+</div>
+<script>
+var vm = new Vue({
+	el : '#app',
+	data : {
+		isActive : true,
+		hasError : false,
+		classObject : {
+			'active' : true,
+			'text-danger' : false
+		},
+		error : null,
+		activeClass : 'active',
+		errorClass : 'text-danger',
+		activeColor : 'blue',
+		fontSize : 30,
+		styleObject : {
+			color : 'blue',
+			fontSize : '30px'
+		},
+		overrideStyle : {
+			fontWeight : 600
+		}
+	},
+	computed : {
+		computeClassObject : function(){
+			return {
+				active : this.isActive && !this.hasError,
+				'text-danger' : this.isActive && this.hasError.type ==='fatal'
+			}
+		}
+	},
+	methods : {
+		fnToggleActive : function(){
+			this.isActive ? this.isActive = false : this.isActive =  true;			
+		},
+		fnToggleHasError : function(){
+			this.hasError ? this.hasError = false : this.hasError = true;				
+		}
+	}
+});
+console.log(document.getElementsByClassName('active'));
+console.log(document.getElementsByClassName('text-danger'));
+</script>
+</body>
+<style>
+.active { color : red; }
+.text-danger { font-size:20px; }	
+</style>
+</html>
