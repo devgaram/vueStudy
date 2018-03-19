@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>006. 리스트 렌더링</title>
+</head>
+<body>
+<script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
+<div id="example-1">
+	<ul v-if="items.length">
+		<li v-for="(item, index) in items">
+			{{ parentMessage }} : [{{ index }}] {{ item.message }}
+		</li>		
+	</ul>
+	<p v-else>No items left!</p>
+	newValue : {{ newValue }}
+	<br/>
+	<input type="text" v-model="newValue" placeholder="추가할 값을 적으세요.">
+	<button @click="fnPush">push</button>
+	<button @click="fnPop">pop</button>
+	<button @click="fnShift">shift</button>
+	<button @click="fnUnshift">unshift</button>
+	<button @click="fnSort">sort</button>
+	<button @click="fnReverse">reverse</button><br/>
+	제거할 데이터 : {{ startValue }}번 부터 {{ lastValue }}개 제거<br/>
+	<input type="text" v-model="startValue" placeholder="인덱스" ><input type="text" v-model="lastValue" placeholder="갯수">
+	<button @click="fnSplice">splice</button>
+</div>
+<hr>
+<div id="example-2">
+	<ul>
+		<li v-for="(value, key, index) in object">
+			[{{ index }}] {{ key }} : {{ value }}
+		</li>
+	</ul>
+	<hr>
+	<ul>
+	  <template v-for="item in items">
+		<li>{{ item.msg }}</li>
+		<li class="divider"></li>
+	  </template>
+	</ul>
+	<hr>
+	<span v-for="n in 10">{{ n }} </span>
+	<hr>
+	<li v-for="todo in todos" v-if="todo.isComplete">
+		{{ todo.msg }}
+	</li>
+</div>
+
+
+<script>
+var example1 = new Vue({
+	el : '#example-1',
+	data : {
+		items : [
+			{ message : 'Foo' },
+			{ message : 'Bar' }
+		],
+		parentMessage : 'Parent',
+		newValue : '',
+		startValue : '',
+		lastValue : ''
+	},
+	methods : {
+		fnPush : function(){			
+			this.items.push({ message : this.newValue });
+			this.newValue='';
+		
+		},
+		fnPop : function(){
+			this.items.pop();
+		},
+		fnShift : function(){
+			this.items.shift();
+		},
+		fnUnshift : function(){
+			this.items.unshift({ message : this.newValue });
+			this.newValue='';
+		},
+		fnSort : function(){
+			this.items.sort(function(a, b){
+				return a.message < b.message ? -1 : a.message > b.message ? 1 : 0;
+			});
+		},
+		fnReverse : function(){
+			this.items.reverse();
+		},
+		fnSplice : function(){
+			this.items.splice(this.startValue, this.lastValue);
+		}
+	}
+});
+
+var example2 = new Vue({
+	el : '#example-2',
+	data : {		
+		object : {
+			firstName : 'John',
+			lastName : 'Doe',
+			age : 30
+		},		
+		items : [
+			{ msg : '안녕' },
+			{ msg : '헬로우' },
+			{ msg : '곤니찌와' }
+		],
+		todos : [
+			{ isComplete : true, msg : '나는 출력되야해!' },
+			{ isComplete : false, msg : '나는 출력되면안돼!' },
+			{ isComplete : false, msg : '나는 출력X' },
+			{ isComplete : true, msg : '나는 출력O' }
+		]
+	}
+});
+
+
+console.group('v-for Directive');
+console.log('배열 반복, 객체의 속성 반복');
+console.log('v-for 블록 안에서, item뿐만 아니라 Vue인스턴스의 다른 data에도 접근할 수 있다.');
+console.log('item in items 을 item of items로 사용할 수 있다.');
+console.warn('v-for >> v-if :: v-for과 v-if가 동일한 element에 있다면 루프가 반복될 때마다 v-if를 실행한다.[일부항목만 렌더링할 때, 사용!]');
+console.groupEnd();
+</script>
+</body>
+</html>
