@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>004. 조건부 렌더링</title>
+	<title>005. 조건부 렌더링</title>
 </head>
 <body>
 <script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
@@ -10,15 +10,26 @@
 	<h1 v-else-if="type==='B'">B</h1>
 	<h1 v-else-if="type==='C'">C</h1>
 	<h1 v-else>NOT A/B/C</h1>
-	
-	<!--
-		v-show와 바인딩된 데이터가 false면 DOM은 생성되나,
-		style="display:none" 이 된다.
-		즉, 초기 조건에 관계없이 항상 DOM이 렌더링된다.
-		*<template>와 v-else 지원 안함.
-	-->
+
 	<h1 v-show="ok">안녕하세요</h1>
+	
+	<template v-if="seen">
+		<h1>Title</h1>
+		<p>Paragraph 1</p>
+		<p>Paragraph 2</p>
+	</template>
+
+	<template v-if="loginType === 'username'">
+	  <label>사용자 이름</label>
+	  <input placeholder="사용자 이름을 입력하세요" key="username-input">
+	</template>
+	<template v-else>
+	  <label>이메일</label>
+	  <input placeholder="이메일 주소를 입력하세요" key="email-input">
+	</template>
+	<button @click="fnChangeLoginType">{{ loginType }}</button>
 </div>
+
 
 
 <script>
@@ -26,17 +37,40 @@ var vm = new Vue({
 	el : '#app',
 	data : {
 		type : 'C',
-		ok : false
+		ok : false,
+		seen : true,
+		loginType : 'username'
+	},
+	methods : {
+		fnChangeLoginType : function(){
+			this.loginType === 'username' ? this.loginType = 'email' : this.loginType = 'username';
+		}
 	}
 });
 
-var vm_tem = new Vue({
-	template : '#app',
-	data : {
-		type : 'C',
-		ok : false
-	}
-});
+console.group('v-if란?');
+console.log('v-if=""');
+console.log('v-else-if=""');
+console.log('v-else');
+console.groupEnd();
+
+console.group('v-show란?');
+console.log('v-show와 바인딩된 데이터가 false면 DOM은 생성되나, style="display:none" 이 된다.');
+console.log('<template>와 v-else를 지원하지 않는다.');
+console.log('자주 토글되는 경우에 사용하면 좋다.');
+console.groupEnd();
+
+console.group('template 태그 사용하기');
+console.log('v-if directive는 각각의 element에 추가해야한다.');
+console.log('하나 이상의 element를 조건에 따른 트랜지션을 하기위해서 래퍼 역할을 하는 template 태그를 이용한다.');
+console.warn('template 태그는 최종 렌더링 결과에 포함되지 않는다.');
+console.groupEnd();
+
+console.group('key를 통한 element 제어');
+console.log('Vue는 효율적으로 렌더링을 하려고 element를 재사용 하곤 한다.');
+console.log('서로 다른 element를 구분하여 트랜지션 시, 각 element를 재사용하는 것을 막기위해 key 속성 값을 사용한다.');
+console.groupEnd();
+
 </script>
 </body>
 </html>
