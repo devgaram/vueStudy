@@ -7,8 +7,8 @@
 <script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
 <div id="example-1">
 	<ul v-if="items.length">
-		<li v-for="(item, index) in items">
-			{{ parentMessage }} : [{{ index }}] {{ item.message }}
+		<li v-for="(item, index) in items" v-bind:key="item.message">
+			{{ parentMessage }} : [{{ index }}] {{ item.message }}	<input type="text">
 		</li>		
 	</ul>
 	<p v-else>No items left!</p>
@@ -21,6 +21,9 @@
 	<button @click="fnUnshift">unshift</button>
 	<button @click="fnSort">sort</button>
 	<button @click="fnReverse">reverse</button><br/>
+	<button @click="fnFilter">filter</button>
+	<button @click="fnConcat">concat</button>
+	<button @click="fnSlice">slice</button><br/><br/>
 	제거할 데이터 : {{ startValue }}번 부터 {{ lastValue }}개 제거<br/>
 	<input type="text" v-model="startValue" placeholder="인덱스" ><input type="text" v-model="lastValue" placeholder="갯수">
 	<button @click="fnSplice">splice</button>
@@ -42,9 +45,12 @@
 	<hr>
 	<span v-for="n in 10">{{ n }} </span>
 	<hr>
-	<li v-for="todo in todos" v-if="todo.isComplete">
-		{{ todo.msg }}
-	</li>
+	<ul>
+		<li v-for="todo in todos" v-if="todo.isComplete">
+			{{ todo.msg }}
+		</li>
+	</ul>
+	<hr>	
 </div>
 
 
@@ -62,10 +68,13 @@ var example1 = new Vue({
 		lastValue : ''
 	},
 	methods : {
-		fnPush : function(){			
-			this.items.push({ message : this.newValue });
-			this.newValue='';
-		
+		fnPush : function(){		
+			if(this.newValue){
+				this.items.push({ message : this.newValue });
+				this.newValue='';
+			}
+			else
+				alert('추가할 데이터를 입력하세요');		
 		},
 		fnPop : function(){
 			this.items.pop();
@@ -74,8 +83,12 @@ var example1 = new Vue({
 			this.items.shift();
 		},
 		fnUnshift : function(){
-			this.items.unshift({ message : this.newValue });
-			this.newValue='';
+			if(this.newValue){
+				this.items.unshift({ message : this.newValue });
+				this.newValue='';
+			}
+			else
+				alert('추가할 데이터를 입력하세요');
 		},
 		fnSort : function(){
 			this.items.sort(function(a, b){
@@ -87,6 +100,21 @@ var example1 = new Vue({
 		},
 		fnSplice : function(){
 			this.items.splice(this.startValue, this.lastValue);
+		},
+		fnFilter : function(){
+			console.log('배열 중에 특정 조건에 해당되는 데이터로 새로운 배열 리턴.');
+			this.items = this.items.filter((item)=>{
+				return item.message.match(/Foo/);
+			});
+		},
+		fnConcat : function(){
+			console.log('인자로 주어진 배열, 값을 기존 배열에 합쳐서 새로운 배열을 반환하는 함수');
+			this.items = this.items.concat(this.items);
+		},
+		fnSlice : function(){
+			console.log('배열의 begin~end 인덱스(end index제외)에 대한 새로운 배열 객체 반환');
+			console.log('slice(begin[, end])  end없으면 begin에서 끝까지.');
+			this.items = this.items.slice(2,4);
 		}
 	}
 });
@@ -119,6 +147,22 @@ console.log('배열 반복, 객체의 속성 반복');
 console.log('v-for 블록 안에서, item뿐만 아니라 Vue인스턴스의 다른 data에도 접근할 수 있다.');
 console.log('item in items 을 item of items로 사용할 수 있다.');
 console.warn('v-for >> v-if :: v-for과 v-if가 동일한 element에 있다면 루프가 반복될 때마다 v-if를 실행한다.[일부항목만 렌더링할 때, 사용!]');
+console.warn('v-for로 렌더링된 데이터가 변경되어 순서가 바뀌면, VUE는 DOM 요소 자체를 이동하는 대신 데이터를 적절하게 패치하며 DOM을 재사용한다.');
+console.warn('--> Vue가 각 element의 ID를 추적하여 기존 element를 재사용하면서 재정렬할 수 있게 하기 위해. KEY를 사용할 수 있다.**항상 key를 추가하는 것이 좋음.');
+console.groupEnd();
+
+console.group('Vue가 감지할 수 없는 경우[배열]');
+console.log('1. vm.items[indexOfItem] = { key : value } 과 같이 직접 변경하는 경우 Vue는 감지 못함');
+console.warn('단,  vm.items[indexOfItem].key = Value 와 같이 배열의 속성에 접근하여 수정한 것은 감지 가능!');
+console.log('2. vm.items.length = newLength 와 같이 직접 배열 길이 변경하는 경우도 감지 못함');
+console.warn(' Vue.set(vm.items, indexOfItem, { key : value}); 를 통해 변경하여 감지하게 할 수 있음.');
+console.warn(' vm.items.splice(indexOfItem, 1, { key : value })');
+console.groupEnd();
+
+console.group('Vue가 감지할 수 없는 경우[객체]');
+console.log('vm.b = 2 와 같이 객체의 속성 추가시 Vue는 변경을 감지 못한다.');
+console.warn('방법1) Vue.set(vm.object, "addr", "원종동") ');
+console.warn('방법2) vm.$set(this.object, "addr", "원종동") ');
 console.groupEnd();
 </script>
 </body>
