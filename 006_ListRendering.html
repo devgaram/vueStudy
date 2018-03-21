@@ -27,6 +27,10 @@
 	제거할 데이터 : {{ startValue }}번 부터 {{ lastValue }}개 제거<br/>
 	<input type="text" v-model="startValue" placeholder="인덱스" ><input type="text" v-model="lastValue" placeholder="갯수">
 	<button @click="fnSplice">splice</button>
+	<hr>
+	<ul>
+		<li v-for="num in evenNumbers">{{ num }}</li>
+	</ul>
 </div>
 <hr>
 <div id="example-2">
@@ -65,7 +69,15 @@ var example1 = new Vue({
 		parentMessage : 'Parent',
 		newValue : '',
 		startValue : '',
-		lastValue : ''
+		lastValue : '',
+		numbers : [1,2,3,4,5]
+	},
+	computed : {
+		evenNumbers : function(){
+			return this.numbers.filter((num)=>{
+				return num%2 ===0
+			});
+		}
 	},
 	methods : {
 		fnPush : function(){		
