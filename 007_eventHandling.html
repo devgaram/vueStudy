@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>007. 이벤트 핸들링</title>
+</head>
+<body>
+<div id="example-1">
+	<button v-on:click="counter += 1">ADD 1</button>
+	<p>위 버튼을 클릭한 횟수는 {{ counter }}번 입니다.</p>
+</div>
+<hr>
+<div id="example-2">
+	<button v-on:click="greet">Greet</button>
+	<button v-on:click="say('hi')">Say hi</button>
+	<button v-on:click="say('what')">Say what</button>
+	<button v-on:click="warn('Form cannot be submitted yet', $event)">Submit</button>
+</div>
+<hr>
+<div id="example-3" v-on:click="exam +=1">	
+	이벤트 전파 : {{exam}}<br/>
+	<a v-on:click="" >click</a>
+	<a v-on:click.stop="">click.stop</a>
+	<hr>
+	<a v-on:click href="">click</a>
+	<a v-on:click.prevent href="">click.prevent</a>
+	<hr>
+	버블링 :  <div v-on:click="print('outer');">outer <a v-on:click="print('inner');">inner</a></div>
+	캡처링 : click.capture : <div v-on:click.capture="print('outer');">outer <a v-on:click="print('inner');">inner</a></div>
+	click.self<div v-on:click.self="print('outer');">outer <a v-on:click="print('inner');">inner</a></div>	
+</div>
+<script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
+<script>
+var example1 = new Vue({
+	el : "#example-1",
+	data : {
+		counter : 0
+	}
+});
+
+var example2 = new Vue({
+	el : "#example-2",
+	data : {
+		name : 'Vue.js'
+	},
+	methods : {
+		greet : function(event){
+			alert('Hello' + this.name + '!');
+			if(event){
+				alert(event.target.tagName);
+			}
+		},
+		say : function(message){
+			alert(message);
+		},
+		warn : function(message, event){
+			//네이티브 이벤트에 접근.
+			if(event) event.preventDefault();
+			alert(message);
+		}
+	}
+});
+//example2.greet();	//메소드 호출 가능.
+var example3 = new Vue({
+	el : "#example-3",
+	data : {
+		exam : 0
+	},
+	methods : {		
+		print : function(message){
+			alert(message);
+		}
+	}
+});
+
+console.group('이벤트 수식어');
+console.log('.stop : 클릭 이벤트 전파X');
+console.log('.prevent : 클릭 이벤트 전파O[체이닝], DOM본래 이벤트 발생X (단순 수식어만 사용가능)');
+console.warn('HTML 리스너 사용 이유 : HTML 템플릿을 간단히 하여 자바스크립트 코드 내에서 핸들러 함수 구현하는 것이 쉬움.');
+console.warn('자바스크립트에서 이벤트를 수동으로 연결할 필요 없고, 뷰모델 코드는 순수 로직과 dom 필요 안함.-> 테스트 쉬워짐.');
+console.warn('뷰모델이 파기되면 모든 이벤트 리스너가 자동으로 제거됨');
+console.groupEnd();
+
+</script>
+<style>
+#example-3{border:1px solid black; padding:5px;}
+#example-3 >*{border:1px solid black;}
+#example-3 >* >*{background:#eee  }
+</style>
+</body>
+</html>
