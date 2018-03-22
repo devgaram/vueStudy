@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>008. 폼 입력 바인딩</title>
+</head>
+<body>
+<div id="example-1">
+	<input v-model="message" placeholder="여기를 수정해보세요">
+	<p>메시지 : {{ message }}</p>
+	<hr>
+
+	<span>여러 줄을 가지는 메시지 : </span>
+	<p style="white-space: pre-line">{{ message }}</p>
+	<textarea v-model="message" placeholder="여러줄을 입력해보세요"></textarea>	
+	<hr>
+
+	하나의 체크박스는 boolean 값을 가진다.<br/>
+	<input type="checkbox" id="checkbox" v-model="checked" value="oneCheckbox">
+	<label for="checkbox">{{ checked }}</label>
+	<br>
+
+	true-value 와 false-value 속성 : 체크박스가 boolean 값이 아닌 특정 값을 가지게 하고 싶을 때[라디오 사용하는 걸 권장]<br>
+	<input type="checkbox" v-model="toggle" true-value="yes" false-value="no">
+	<label for="checkbox">{{ toggle }}</label>
+	<hr>
+
+	여러개의 체크박스는 value속성을 같은 배열을 바인딩 할 수 있다.<br/>
+	<input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
+	<label for="jack">Jack</label>
+	<input type="checkbox" id="john" value="John" v-model="checkedNames">
+	<label for="john">John</label>
+	<input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
+	<label for="mike">Mike</label>
+	<br>
+	<span>체크한 이름: {{ checkedNames }}</span>
+	<hr>
+
+	라디오의 value 속성과 data 옵션의 값을 v-model을 통해 바인딩 할 수 있다.<br>
+	<input type="radio" id="one" value="One" v-model="picked">
+	<label for="one">One</label>
+	<br>
+	<input type="radio" id="two" value="Two" v-model="picked">
+	<label for="two">Two</label>
+	<br>
+	<span>선택 : {{ picked }}</span>
+	<br>
+	<hr>
+	
+	하나의 설렉트<br>
+	<select v-model="selected">
+		<option disabled value="">please select one</option>
+		<option>A</option>
+		<option>B</option>
+		<option>C</option>
+	</select>
+	<span>선택함 : {{ selected }}</span>
+	<hr>
+
+	다중 설렉트(배열 바인딩)<br>
+	<select v-model="multiSelected" multiple>		
+		<option>A</option>
+		<option>B</option>
+		<option>C</option>
+	</select>
+	<span>선택함 : {{ multiSelected }}</span>
+	<hr>
+
+	동적 설렉트
+	<select v-model="selectedColor">		
+		<option v-for="color in optionsColor" v-bind:value="color.value">{{ color.text }}</option>
+	</select>
+	<span>선택함 : {{ selectedColor }}</span>
+	<hr>
+
+	옵션 value속성에 객체도 바인딩 할 수 있음.<br/>
+	<select v-model="objSelected">
+		<option v-bind:value="{ number : 123 }">123</option>
+		<option v-bind:value="{ number : 456 }">456</option>
+		<option v-bind:value="{ number : 789 }">789</option>
+	</select>
+	<span>선택함 : {{ typeof objSelected }} - {{ objSelected.number }}</span>
+	<hr>
+
+	수식어 <br>
+	v-model.lazy : change 이벤트 이후에 입력과 데이터 동기화<br>
+	<input v-model.lazy="msg" placeholder="여기를 수정해보세요" >
+	<p>메시지 : {{ msg }}</p>
+
+	v-model.number : 입력이 숫자로 형변환됨. <br>
+	<input v-model.number="age">
+	<p>age : {{ age }}</p>	
+
+	v-model.trim <br>
+	<input v-model.trim="trimmsg">
+	<p>trimmsg : {{ trimmsg }}</p>
+	<hr>
+
+</div>
+<script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
+<script>
+var example1 = new Vue({
+	el : '#example-1',
+	data : {
+		message : '',
+		msg : '',
+		checked : false,
+		checkedNames : [],
+		picked : 'Two',
+		selected : '',
+		multiSelected : ['B','C'],
+		selectedColor : 'blue',
+		optionsColor : [
+			{ text : '빨강', value : 'red' },
+			{ text : '파랑', value : 'blue'},
+			{ text : '초록', value : 'green'}
+		],
+		toggle : 'yes',
+		objSelected : {number : 789},
+		age : '',
+		trimmsg : ''
+		
+	}
+});
+
+console.warn('v-model은 Vue 인스턴스의 data 옵션의 값을 원본으로 하며, 모든 element의 초기 value, checked, selected를 무시한다.');
+console.group('<select>태그 v-model');
+console.log('v-model을 통해 바인딩된 data 옵션의 값이 없으면, <select>는 아무 것도 선택되지 않은 상태로 렌더링 된다.');
+console.log('disabled 상태인 첫번째 옵션을 선택된 상태로 초기 렌더링을 하고 싶다면, 첫번째 옵션을 value=""와 같이 설정하면 된다.');
+console.groupEnd();
+</script>
+<style>
+
+</style>
+</body>
+</html>
