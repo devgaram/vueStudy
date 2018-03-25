@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>009. 컴포넌트</title>
+</head>
+<body>
+<div id="example-1">
+	<my-component></my-component>
+	<!--<local-component></local-component>-->
+</div>
+<hr>
+<div id="example-2">
+	<my-component></my-component>
+	<local-component></local-component>
+	<hr>
+	<table>
+		<my-row></my-row>
+	</table>
+	<table>
+		<tr is="my-row"></tr>
+	</table>
+</div>	
+<hr>
+<div id="example-3">
+	<my-data-component></my-data-component>
+	<br>
+	<simple-counter></simple-counter>
+	<simple-counter></simple-counter>
+	<simple-counter></simple-counter>
+	<hr>
+	<input v-model="parentMsg"><br>
+	<child message="안녕하슈" v-bind:my-message="parentMsg"></child>
+	<hr>	
+	<todo-item v-bind="todo"></todo-item>
+	<hr>
+	<!--리터럴 prop-->
+	<come some-prop="1"></come>
+	<come :some-prop="1"></come>
+</div>	
+<script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
+<script>
+/*
+	HTML을 확장하여 재사용가능하게 캡슐화한 것.
+	컴포넌트는 is 속성을 통해 확장된 HTML 형태를 보일 수 있다.
+	컴포넌트는 Vue Instance로 인스턴스와 같은 옵션객체와 라이프사이클 훅을 가진다.
+*/
+//전역 컴포넌트 등록하기.
+/*
+	루트 인스턴스가 생성되기 전에, 컴포넌트가 전역에 등록되어야 인스턴스의 템플릿에서 이 컴포넌트를 사용할 수 있다.	
+*/
+Vue.component('my-component',{
+	template : '<div>A custom component!</div>'
+});
+var example1 = new Vue({
+	el : '#example-1'
+})
+//지역 컴포넌트 등록하기
+/*
+	모든 컴포넌트를 전역으로 등록하지 말아야한다.
+	우리는 뷰 인스턴스의 components라는 인스턴스 옵션을 통해 특정 인스턴스와 컴포넌트의 스코프에서 사용할 수 있는 컴포넌트를 만들 수 있다.
+*/
+//is 속성 사용하기
+/*
+	 <ul>, <ol>, <table>, <select>안에는 <li>, <ol>, <tr>, <option>과 같은 특정 element가 있어야 한다.
+
+	Vue는 브라우저가 DOM을 파싱, 정규화한 다음에야 켐플릿 컨텐츠를 찾기 때문에 위와 같은 Element안에서 컴포넌트를 사용할 때 주의해야할 점이 있다.
+
+	위와 같은 element안에서 컴포넌트를 사용할 때, 정상적으로 렌더링된 결과를 보기위해서 우리는 is라는 속성을 이용한다.
+
+*/
+var Child = {
+	template : '<div>A local custom component!</div>'
+}
+var example2 = new Vue({
+	el : '#example-2',
+	components : {
+		'local-component' : Child,
+		'my-row' : {
+			template : '<tr><td>My Row!</td></tr>'
+		}
+	}
+})
+// 컴포넌트에서 data 옵션 사용하기
+/*
+	뷰 생성시 사용하는 옵션의 대부분을 컴포넌트를 등록할 때 사용할 수 있다.
+
+	이때, data 옵션의 경우엔 반드시 함수 형태로 사용해야 한다!
+*/
+
+Vue.component('my-data-component',{
+	template : '<span>{{ message }}</span>',
+	data : function(){
+		return {
+			message : 'hello'
+		};
+	}
+})
+//컴포넌트에서 부모/자식간의 소통
+/*
+	각 컴포넌트는 독립적인 인터페이스면서 서로 부모/자식간의 관계를 가진다.
+
+	부모-> 자식 소통 : props
+	자식 -> 부모 소통 : event
+
+	1. Props
+	하위 컴포넌트가 상위 컴포넌트의 데이터를 직접 참조할 수 없음!! 해서도 안됨!
+	[단반향 바인딩]
+
+	하위 컴포넌트의 props를 통해 상위 컴포넌트의 데이터를 사용할 수 있다.
+
+	props에서 상위 컴포넌트의 데이터를 명시적으로 선언하면 된다.
+
+	* HTML은 대소문자 구분 안하므로 - (하이픈) 사용하기.
+
+	my-message === 'myMessage'
+*/
+Vue.component('child',{
+	props : ['message', 'myMessage'],
+	template : '<span> message: {{ message }}, myMessage: {{ myMessage}} </span>'
+});
+Vue.component('todo-item',{
+	props : ['text', 'isComplete'],
+	template : '<span> text: {{ text }} <Br/> LowerCaseText : {{ LowerCaseText }}<Br/> isComplete: {{ isComplete}} </span>',
+	computed : {
+		LowerCaseText : function(){
+			return this.text.trim().toLowerCase();
+		}
+	}
+
+});
+Vue.component('come',{
+	props : ['someProp'],
+	template : '<span> someProp: {{ someProp }}</span>'
+});
+
+var example3 = new Vue({
+	el : '#example-3',
+	data : {
+		parentMsg : '',
+		todo : {
+			text : 'Learn Vue',
+			isComplete : false
+		}
+	},
+	components : {
+		'simple-counter' : {
+			template : '<button v-on:click="counter += 1">{{ counter }}</button>',
+			data : function(){
+				return {
+					counter : 0
+				}
+			}
+		}
+	}
+})
+
+
+</script>
+<style>
+
+</style>
+</body>
+</html>
