@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>011. 자식-> 부모 소통 방법! 커스텀이벤트.</title>
+</head>
+<body>
+<div id="counter-event-example">
+	<p>{{total}}</p>
+	<button-counter v-on:increment="incrementTotal"></button-counter>
+	<button-counter v-on:increment="incrementTotal"></button-counter>
+</div>
+<hr>
+<div id="message-event-example">
+	<p v-for="msg in messages">{{ msg }}</p>
+	<button-message v-on:message="handleMessage"></button-message>
+</div>
+<hr>
+<div id="syn-event-example">
+	<p>부모:{{bar}}</p>
+	<input v-model="bar"/>
+	== <input v-bind:value="bar" v-on:input="bar=$event.target.value"/>
+	== <input :value="bar" @input="bar=$event.target.value"/>
+	<comp v-bind:foo="bar" @update:foo="val=> bar=val"></comp>
+</div>
+<hr>
+<div id="custom-event-example">
+	<p>{{something}}</p>
+	<custom-input :value="something" @input="value=>{something=value}"></custom-input>
+	==<custom-input v-model="something"></custom-input>
+</div>
+<hr>
+<div id="currency-event-example">
+	<currency-input v-model="price"></currency-input>
+</div>
+<hr>
+<div id="checkbox-event-example">
+	<p>{{foo}}</p>
+	<my-checkbox v-model="foo" value="some value"></my-checkbox>
+	<my-checkbox :checked="foo" @change="val=>{foo=val}" value="some value"></my-checkbox>
+</div>
+<script src="vue.2.5.15.js"></script>
+<script>
+	/*
+		$on(eventName) : 이벤트 감지
+		$emit(eventName, optionalPayload) : 이벤트 트리거
+		- 자식 컴포넌트 내에서 사용해야함.
+
+		v-on을 통해 부모는 자식 컴포넌트에서 보낸 이벤트를 감지할 수 있다.
+	*/
+	/*
+		자식컴포넌트가 외부에서 발생되는 것과 완전히 분리된 예제,
+		그저 부모컴포넌트에게 자신의 활동을 보고할 뿐.
+	*/
+	Vue.component('button-counter',{
+		template : '<button v-on:click="incrementCounter">{{counter}}</button>',
+		data : function(){
+			return {
+				counter : 0
+			}
+		},
+		methods : {
+			incrementCounter : function(){
+				this.counter += 1
+				this.$emit('increment')
+			}
+		}
+	})
+
+	new Vue({
+		el : '#counter-event-example',
+		data : {
+			total : 0
+		},
+		methods : {
+			incrementTotal : function(){
+				this.total +=1
+			}
+		}
+	})
+	/*
+		자식컴포넌트가 외부에서 발생되는 것과 완전히 분리된 예제,
+		그저 부모컴포넌트에게 자신의 활동을 보고할 뿐.
+		+ 자식컴포넌트에서 $emit시 payload data를 포함.
+	*/
+	Vue.component('button-message',{
+		template : `<div>
+					<input type="text" v-model="message"/>
+					<button v-on:click="handelSendMessage">Send</button>
+					</div>`,
+		data : function(){
+			return {
+				message : 'test message'
+			}
+		},
+		methods : {
+			handelSendMessage : function(){
+				this.$emit('message', {message:this.message})
+			}
+		}
+	})
+
+	new Vue({
+		el : '#message-event-example',
+		data : {
+			messages : []
+		},
+		methods : {
+			handleMessage : function(payload){
+				this.messages.push(payload.message);
+			}
+		}
+	})
+	/*
+		부모-자식 양방향 통신하게 하는 sync는 2.0버전에서 사라졌다.
+		그러나,  재사용 가능한 컴포넌트 만들때 유용하므로
+		다음과 같은 방법으로 양방향 통신을 하게 할 수 있다.
+		1. 부모의 data를 v-bind를 이용해 자식의 속성으로 값 전달
+		2. 자식의 속성 값이 변경될 때, $emit을 통해 update 이벤트를 트리거 시키기.
+		3. 부모는 이벤트 감지하여 해당 값을 처음 자식에게 보낸 데이터에 할당.
+
+		마치, 자식 속성 변경이 부모에게 영향 끼치는 걸로 보임.
+	*/
+	/*
+		err: Component template should contain exactly one root element.
+		--> 컴포넌트의 템플릿에는 최상위 태그가 1개만 있어야 렌더가 가능.
+
+		err : Avoid mutating a prop directly since the value will be overwritten whenever the parent component re-renders.
+		--> prop속성을 자식컴포넌트의 data값에 초기화 시키기
+	*/
+
+	Vue.component('comp',{
+		template : `<div>
+						<p>자식:{{localfoo}}</p>
+						<input type="text" v-model="localfoo"/>
+						<button v-on:click="sendMsg">send</button>
+					</div>
+					`,
+		props :['foo'],
+		data : function(){
+			return {
+				localfoo : this.foo
+			}
+		},
+		methods: {
+			sendMsg : function(){
+				this.$emit('update:foo', this.localfoo);
+			}
+		}	
+
+	})
+
+	new Vue({
+		el : '#syn-event-example',
+		data : {
+			bar : 10
+		}
+
+	})
+
+	/*
+		커스텀 v-model 이벤트 예제
+	*/
+	Vue.component('custom-input',{
+		template : `<input v-bind:value="value" v-on:input="updateValue($event.target.value)"/>`,
+		props : ['value'],
+		methods : {
+			updateValue : function(value){
+				this.$emit('input', value)
+			}
+		}
+	})
+
+	new Vue({
+		el : '#custom-event-example',
+		data : {
+			something : 'aaa'
+		}
+	})
+	/* 
+		예제 : currency-input : 소수점 2자리까지만 나타나게.
+	- slice 함수 : string개체.slice(시작인덱스, 끝인덱스) 
+	시작인덱스~끝인덱스-1까지 string 리턴
+	- $refs 
+		: DOM요소에 접근할 수 있다.
+
+		
+	*/
+	Vue.component('currency-input',{
+		template : `<span>
+						<input ref="input" v-bind:value="value" v-on:input="updateValue($event.target.value)">
+					</span>`
+		,props : ['value'],
+		methods : {
+			updateValue : function(value){
+				var formattedValue = value
+				.trim()
+				.slice(
+					0,
+					value.indexOf('.') === -1
+						? value.length
+						: value.indexOf('.')+3
+					)
+				if (formattedValue != value){
+					this.$refs.input.value=formattedValue
+					console.log(this.$refs.input);
+				}
+				this.$emit('input', Number(formattedValue))
+			}
+		}			
+	});
+	new Vue({
+		el : '#currency-event-example',
+		data : {
+			price : 1000
+		}
+	})
+
+	/*
+		v-model은 value가 보조변수, input이 이벤트로 사용하지만,
+		체크박스와 라디오버튼은 다른 목적으로 value속성를 사용할 수 있다. 이때 model 옵션을 사용하면 충돌 피할 수 있음.
+	*/
+	Vue.component('my-checkbox',{
+		model : {
+			prop : 'checked',
+			event : 'change'
+		},
+		props : {
+			checked : Boolean,
+			value : String
+		},
+		template : `<input type="checkbox" :checked="checked" @change="changeChk($event.target.checked)">`,
+		methods : {
+			changeChk : function(value){
+				this.$emit('change',value);
+			}
+		}
+	})
+
+	new Vue({
+		el : '#checkbox-event-example',
+		data : {
+			foo : true
+		}
+	})
+
+</script>
+</body>
+</html>

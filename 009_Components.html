@@ -37,6 +37,11 @@
 	<come some-prop="1"></come>
 	<come :some-prop="1"></come>
 </div>	
+<hr>
+<div id="exam01">
+	<p>prop의 초기값을 자식컴포넌트에서 로컬 데이타로 사용하기.</p>
+	<e01 :initial-counter="initialCounter"></e01>
+</div>
 <script src="https://unpkg.com/vue@2.5.15/dist/vue.js"></script>
 <script>
 /*
@@ -153,8 +158,89 @@ var example3 = new Vue({
 		}
 	}
 })
+/*
+[One-Way Data Flow]
+부모, 자식 간의 모든 props는 단방향으로 흐른다.
+부모 컴포넌트의 데이터가 변경되면 자식 컴포넌트의 데이터가 변경되나, 그 반대는 안된다. 왜냐하면 자식 컴포넌트가 부모 컴포넌트의 상태와 값을 실수로 변경하게되면 앱의 데이터 흐름이 혼란스러워지기 때문이다.
 
+부모 컴포넌트의 상태가 변경되면, 자식 컴포넌트의 모든 props[부모의 데이터와 바인딩시키겠다고 명시한 값]는 최신값으로 업데이트된다.
 
+우리가 자식컴포넌트에서 props를 변경하려하면 vue는 콘솔을 통해 경고를 보낸다. 하지만, 때로는 그 prop를 변경하고 싶을 때가 있다.
+
+1. 초기값을 전달하는 prop를 자식컴포넌트에서 로컬 데이타 속성으로 사용하고 싶을때. -> this.prop명
+prop는. 컴포넌트의 로컬데이터?
+this.prop명으로 호출가능.
+
+2. 전달된 prop값을 변형해서 사용하고 싶을때 -> computed속성사용
+
+*주의) prop로 객체나 배열 전달시, 이는 참조로 전달되므로 부모상태에 영향준다.
+*/
+new Vue({
+	el : '#exam01',
+	data : {
+		initialCounter : 0
+	},
+	components : {
+		'e01' : {
+			template :'<span>1.{{commonCounter}} <br/>2.{{localcounter1}} </br>3.{{plusedCounter}}</span>',
+			props :{
+				initialCounter : Number,
+				default : 100 //안먹힘, 인스턴스 생성전에 검증하므로.
+			},
+			data : function(){
+				return {
+					localcounter1 : this.initialCounter,
+					commonCounter : 0
+				}
+			},
+			computed : {
+				plusedCounter : function(){
+					return this.localcounter1+1;
+				}
+			}
+		}
+	}
+})
+
+console.warn('html에선 -(하이픈) script에선 카멜법으로 써야 에러안난다.');
+
+/*
+	props는 컴포넌트 인스턴스가 생성되기 전에 검증되므로
+	default, validator 함수 내에서 data, computed, methods와
+	같은 인스턴스 속성을 사용할 수 없음.
+*/
+Vue.component('example', {
+  props: {
+    // basic type check (`null` means accept any type)
+    propA: Number,
+    // multiple possible types
+    propB: [String, Number],
+    // a required string
+    propC: {
+      type: String,
+      required: true
+    },
+    // a number with default value
+    propD: {
+      type: Number,
+      default: 100
+    },
+    // object/array defaults should be returned from a
+    // factory function
+    propE: {
+      type: Object,
+      default: function () {
+        return { message: 'hello' }
+      }
+    },
+    // custom validator function
+    propF: {
+      validator: function (value) {
+        return value > 10
+      }
+    }
+  }
+})
 </script>
 <style>
 
