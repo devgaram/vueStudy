@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>012. 슬롯</title>
+</head>
+<body>
+<div id="slot-example">
+	<alert-box>
+		something bad happened.
+		<input>
+	</alert-box>
+	<hr>
+	<navigation-link url="/profile">
+		<span class="fa fa-user"></span>
+		your Profile<br>
+		<p>
+			slot은 뷰 인스턴스 데이터에 접근할 수 있다.
+			컴포넌트와 같은 스코프를 가지며, 컴포넌트 상위의 스코프에 해당되는 속성에 접근가능.
+			만약 props로 전해진 url data에 접근하면 정의되어있지않다고 에러가 난다.
+		</p>
+		Logged in as {{user.name}}		
+		<alert-box></alert-box>
+	</navigation-link>
+</div>
+<hr>
+<div id="layout-example">
+	<base-layout>
+		<template slot="header">
+			<h1>here might be a page title</h1>
+		</template>
+		<main>
+			<p>A paragraph for the main content.</p>
+	  		<p>And another one.</p>
+  		</main>
+		<template slot="footer">
+			<p>Here's some contact info</p>
+		</template>
+	</base-layout>
+	<hr>
+	<base-layout>
+		<h1 slot="header">here might be a page title</h1>
+		<p>A paragraph for the main content.</p>
+  		<p>And another one.</p>
+  		<p slot="footer">Here's some contact info</p>
+  	</base-layout>
+  	<hr>
+  	<default-slot>
+  		upload
+  	</default-slot>
+</div>
+<hr>
+<div id="todo-example">
+	<todo-list></todo-list>
+	<hr>
+	<todo-list-slot v-bind:todos="todos">
+		<template slot-scope="slotProps">
+			<span v-if="slotProps.todo.isComplete">v</span>
+			{{slotProps.todo.text}}
+		</template>
+		<hr>
+		<template slot-scope="{todo}">
+			<span v-if="todo.isComplete">v</span>
+			{{todo.text}}
+		</template>
+	</todo-list-slot>
+</div>
+<hr>
+<div id="awesome-example">
+	<my-awesome-list :items="items">
+		<li
+			slot="item"
+			slot-scope="props"
+			class="my-fancy-item">
+			{{props.text}}	
+		</li>
+	</my-awesome-list>
+</div>
+<script src="vue.2.5.15.js"></script>
+<script>
+	/*
+		***부모 컨텐츠와 자식 컴포넌트의 템플릿 섞는 방법!=콘텐츠 배포
+		1. 템플릿에서 slot 사용하기.
+		<slot>이 없는 경우, 해당 컴포넌트 안에 추가된 html 및 plain text는 무시된다. 
+		하지만, 템플릿에 <slot>태그가 있는 경우 컴포넌트 태그 안의 내용이 slot을 대체한다.
+		* plain text, html, 다른 컴포넌트도 가능!
+
+
+	*/
+	Vue.component('alert-box',{
+		template : `
+					<div class="demo-alert-box">
+						<strong>Error!</strong>
+						<slot></slot>
+					</div>
+					`
+	})
+	Vue.component('navigation-link',{
+		template : `
+					<a v-bind:href="url" class="nav-link">
+						<slot></slot>
+					</a>
+					`
+		,props : ['url']
+	})
+	/*
+		**<slot>안에 초기값 넣을 수 있담.
+		버튼이 전송, 업로드, 저장 등 다양한 이름으로 사용되기를 원할 때,
+	*/
+	Vue.component('default-slot',{
+		template : `
+					<button type="submit"> 
+						<slot>Submit</slot>
+					</button>
+					`
+	})
+
+	new Vue({
+		el : '#slot-example',
+		data : {
+			user : {
+				name : 'garam',
+				age  : 18
+			}
+		} 
+	})
+	/*
+		2. 이름있는 템플릿
+		 - <template slot="<slot>태그의 name속성">
+		 - <특정태그 slot="<slot>태그의 name속성">
+		 을 사용하면 특정 slot에 매칭시켜 대체할 수 있다.
+		 위와 같이 slot에 매칭 안시킨 경우에는 default slot로 이름 지정 안한 slot에 대체된다.
+	*/
+	Vue.component('base-layout',{
+		template : `
+					<div class="container">
+						<header>
+							<slot name="header"></slot>
+						</header>
+						<main>
+							<slot></slot>
+						</main>
+						<footer>
+							<slot name="footer"></slot>
+						</footer>
+					</div>
+					`
+	})
+	new Vue({
+		el : '#layout-example'
+	})
+	/*
+		3.범위를 가지는 slot
+		자식컴포넌트의 데이타에 접근할 수 있는 재사용가능한 슬롯이 필요할때,
+		부모->자식 소통 시, prop를 전달한 것과 비슷함.
+		<slot>에서 v-bind로 속성에 데이터 바인딩 하면,
+		부모에서 slot-scope 속성을 가진 <template> 엘리먼트가 받을 수 있다.  2.5.0+ 이후부터 컴포넌트와 엘리먼트에도 사용가능.
+	*/
+	Vue.component('todo-list',{
+		template : `
+					<ul>
+						<li
+							v-for="todo in todos"
+							v-bind:key="todo.id"
+						>
+							{{todo.text}}
+						</li>
+					</ul>
+					`,
+		data : function(){
+			return{
+				todos : [
+					{ id: 1, text : 'child-study'},
+					{ id: 2, text : 'child-work'},
+					{ id: 3, text : 'child-excrsise'}
+				]
+			}
+		}
+	})
+	Vue.component('todo-list-slot',{
+		template : `
+					<ul>
+						<li
+							v-for="todo in todos"
+							v-bind:key="todo.id"
+						>
+							<slot v-bind:todo="todo">
+								{{todo.text}}
+							</slot>
+						</li>
+					</ul>
+					`,
+		data : function(){
+			return{
+				todos : [
+					{ id: 1, text : 'child-study', isComplete:true},
+					{ id: 2, text : 'child-work', isComplete:false},
+					{ id: 3, text : 'child-excrsise',isComplete:true}
+				]
+			}
+		}
+	})
+	new Vue({
+		el : '#todo-example'		
+	})
+	/*
+		Object destructuring
+	*/
+	var o = {p:42, q:true};
+	var {p,q} = o;
+	console.log(p+','+q);
+
+	var a,b;
+	({a,b}={a:1, b:2});
+	console.log(a+','+b);
+
+	var {a = 10, b = 5} = {a: 3};
+	console.log(a); // 3
+	console.log(b); // 5
+	/*
+		범위가 지정된 슬롯의 일반적인 사례
+	*/	
+	Vue.component('my-awesome-list',{
+		template : `
+					<ul>
+						<slot name="item"
+						v-for="item in items"
+						:text="item.text"
+						>
+						<!--대체컨텐츠-->
+						</slot>
+					</ul>
+					`,
+		props : ['items']
+	})
+	new Vue({
+		el : '#awesome-example',
+		data : {
+			items : [
+				{ id : 1, text:'aaa'},
+				{ id : 2, text:'bbb'},
+				{ id : 3, text:'ccc'}
+			]
+		}		
+	})
+
+</script>
+
+</body>
+</html>
