@@ -1,7 +1,11 @@
 <template>
   <div class="hello">
     <div class="holder">
-      
+      <!--
+      v-validate
+      errors 객체는 VeeValidate가 생성한 에러들
+      errors.has('vocabulary')란 vocabulary data 속성에 유효성 체크 에러가 발생했는지를 확인하는 것.
+      -->
       <form @submit.prevent="addVocabulary">
         <input type="text" placeholder="기억하고 싶은 단어를 입력하세요.." v-model="vocabulary" v-validate="'min:5'" name="vocabulary">
 
